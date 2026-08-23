@@ -1,0 +1,42 @@
+# Dependencies & build output
+node_modules
+dist
+.pnpm-store
+
+# Version control
+.git
+.gitignore
+
+# Environment files (loaded via docker-compose env_file, not baked into image)
+.env
+**/.env
+
+# IDE & editor configs
+.vscode
+.idea
+*.sublime-workspace
+
+# Docker configs (not needed inside containers)
+docker-compose.yaml
+.dockerignore
+
+# Dev / lint / formatting tools
+.prettierrc
+eslint.config.mjs
+
+# Documentation & test files
+README.md
+*.md
+.http
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Test coverage
+coverage
+.nyc_output

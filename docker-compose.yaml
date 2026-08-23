@@ -1,0 +1,82 @@
+services:
+  reservations:
+    build:
+      context: .
+      dockerfile: apps/reservations/Dockerfile
+      target: development
+    command: pnpm run start:dev reservations
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./apps/reservations/.env
+    environment:
+      - CI=true
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+    depends_on:
+      - mongo
+
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+      target: development
+    command: pnpm run start:dev auth
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./apps/auth/.env
+    environment:
+      - CI=true
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+    depends_on:
+      - mongo
+
+  payments:
+    build:
+      context: .
+      dockerfile: apps/payments/Dockerfile
+      target: development
+    command: pnpm run start:dev payments
+    volumes:
+      - .:/usr/src/app 
+      - /usr/src/app/node_modules 
+    env_file:
+      - ./apps/payments/.env  
+    environment:
+      - CI=true
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+    depends_on:
+      - mongo   
+
+  notifications:
+    build:
+      context: .
+      dockerfile: apps/notifications/Dockerfile
+      target: development
+    command: pnpm run start:dev notifications
+    volumes:
+      - .:/usr/src/app 
+      - /usr/src/app/node_modules 
+    env_file:
+      - ./apps/notifications/.env  
+    environment:
+      - CI=true
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+    depends_on:
+      - mongo     
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes: 
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

@@ -1,0 +1,85 @@
+@reservationsUrl = http://localhost:3000
+@authUrl = http://localhost:3001
+
+###############################################################################
+# AUTH & USERS SERVICE (Port 3001)
+###############################################################################
+
+### 1. Create a User (Registration)
+# @name createUser
+POST {{authUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "akandeakinlolu9@gmail.com",
+  "password": "StrongPassword123!"
+}
+
+###
+
+### 2. Login (Generates JWT Cookie)
+# @name login
+POST {{authUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "akandeakinlolu9@gmail.com",
+  "password": "StrongPassword123!"
+}
+
+###
+
+### 3. Get Current User (Authenticated via JWT Cookie)
+# @name getCurrentUser
+GET {{authUrl}}/users
+
+###
+
+###############################################################################
+# RESERVATIONS SERVICE (Port 3000)
+###############################################################################
+
+### 1. Create a Reservation
+# @name createReservation
+POST {{reservationsUrl}}/reservations
+Content-Type: application/json
+
+{
+  "startDate": "2026-08-20T10:00:00.000Z",
+  "endDate": "2026-08-25T10:00:00.000Z",
+  "charge": {
+    "card": {
+      "cvc": "123",
+      "exp_month": 12,
+      "exp_year": 2028,
+      "number": "4242424242424242"
+    },
+    "amount": 20
+  }
+}
+ 
+###
+
+### 2. Get All Reservations
+GET {{reservationsUrl}}/reservations
+
+###
+
+### 3. Get a Single Reservation by ID
+@reservationId = {{createReservation.response.body._id}}
+GET {{reservationsUrl}}/reservations/{{reservationId}}
+
+###
+
+### 4. Update a Reservation by ID
+PATCH {{reservationsUrl}}/reservations/{{reservationId}}
+Content-Type: application/json
+
+{
+  "placeId": "place_updated_999"
+}
+
+###
+
+### 5. Delete a Reservation by ID
+DELETE {{reservationsUrl}}/reservations/{{reservationId}}
