@@ -1,24 +1,53 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { PaymentsModule } from './../src/payments.module';
+import { PaymentsController } from '../src/payments.controller';
+import { PaymentsService } from '../src/payments.service';
+import { PaymentsCreateChargeDto } from '../dto/payments-create-charge.dto';
 
 describe('PaymentsController (e2e)', () => {
-  let app: INestApplication;
+  let controller: PaymentsController;
+  let service: PaymentsService;
 
-  beforeEach(async () => {
+  const mockPaymentIntent = {
+    id: 'pi_e2e_123',
+    amount: 50000,
+    currency: 'usd',
+    status: 'succeeded',
+  };
+
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [PaymentsModule],
+      controllers: [PaymentsController],
+      providers: [
+        {
+          provide: PaymentsService,
+          useValue: {
+            createCharge: jest.fn().mockResolvedValue(mockPaymentIntent),
+          },
+        },
+      ],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    controller = moduleFixture.get<PaymentsController>(PaymentsController);
+    service = moduleFixture.get<PaymentsService>(PaymentsService);
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  describe('create_charge message pattern', () => {
+    it('should process payment charge and return payment intent', async () => {
+      const chargeDto: PaymentsCreateChargeDto = {
+        amount: 500,
+        email: 'payer@example.com',
+        card: {
+          cvc: '123',
+          exp_month: 12,
+          exp_year: 2028,
+          number: '4242424242424242',
+        },
+      };
+
+      const result = await controller.createCharge(chargeDto);
+
+      expect(service.createCharge).toHaveBeenCalledWith(chargeDto);
+      expect(result).toEqual(mockPaymentIntent);
+    });
   });
 });
