@@ -1,22 +1,113 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationsController } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
+import { CreateReservationDto } from './dto/create-reservation.dto';
+import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { AUTH_SERVICE, JwtAuthGuard, UserDto } from '@app/common';
 
 describe('ReservationsController', () => {
-  let reservationsController: ReservationsController;
+  let controller: ReservationsController;
+  let service: ReservationsService;
+
+  const mockUser: UserDto = {
+    _id: 'user123',
+    email: 'test@example.com',
+    password: 'hashedpassword',
+  };
+
+  const mockReservation = {
+    _id: 'res123',
+    startDate: new Date('2026-09-01'),
+    endDate: new Date('2026-09-05'),
+    invoiceId: 'inv123',
+    userId: 'user123',
+    timestamp: new Date(),
+  };
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [ReservationsController],
-      providers: [ReservationsService],
-    }).compile();
+      providers: [
+        {
+          provide: ReservationsService,
+          useValue: {
+            create: jest.fn().mockResolvedValue(mockReservation),
+            findAll: jest.fn().mockResolvedValue([mockReservation]),
+            findOne: jest.fn().mockResolvedValue(mockReservation),
+            update: jest.fn().mockResolvedValue({ ...mockReservation, endDate: new Date('2026-09-10') }),
+            remove: jest.fn().mockResolvedValue(mockReservation),
+          },
+        },
+        {
+          provide: AUTH_SERVICE,
+          useValue: {},
+        },
+      ],
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
-    reservationsController = app.get<ReservationsController>(ReservationsController);
+    controller = module.get<ReservationsController>(ReservationsController);
+    service = module.get<ReservationsService>(ReservationsService);
   });
 
-  describe('root', () => {
-    it('should be defined', () => {
-      expect(reservationsController).toBeDefined();
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create a reservation for current user', async () => {
+      const createDto: CreateReservationDto = {
+        startDate: new Date('2026-09-01'),
+        endDate: new Date('2026-09-05'),
+        charge: {
+          amount: 500,
+          card: {
+            cvc: '123',
+            exp_month: 12,
+            exp_year: 2028,
+            number: '4242424242424242',
+          },
+        },
+      };
+
+      const result = await controller.create(createDto, mockUser);
+      expect(service.create).toHaveBeenCalledWith(createDto, mockUser);
+      expect(result).toEqual(mockReservation);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of reservations', async () => {
+      const result = await controller.findAll();
+      expect(service.findAll).toHaveBeenCalled();
+      expect(result).toEqual([mockReservation]);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a single reservation by id', async () => {
+      const result = await controller.findOne('res123');
+      expect(service.findOne).toHaveBeenCalledWith('res123');
+      expect(result).toEqual(mockReservation);
+    });
+  });
+
+  describe('update', () => {
+    it('should update and return the reservation', async () => {
+      const updateDto: UpdateReservationDto = { endDate: new Date('2026-09-10') };
+      const result = await controller.update('res123', updateDto);
+      expect(service.update).toHaveBeenCalledWith('res123', updateDto);
+      expect(result).toEqual({ ...mockReservation, endDate: new Date('2026-09-10') });
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete and return the reservation', async () => {
+      const result = await controller.remove('res123');
+      expect(service.remove).toHaveBeenCalledWith('res123');
+      expect(result).toEqual(mockReservation);
     });
   });
 });
