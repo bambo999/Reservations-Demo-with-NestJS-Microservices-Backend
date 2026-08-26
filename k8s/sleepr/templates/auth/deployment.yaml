@@ -31,7 +31,10 @@ spec:
                   name: jwt
                   key: jwtSecret
             - name: MONGODB_URI
-              value: "mongodb+srv://akandeakinlolu9_db_user:9eaq6NAOEcu4AOB1@sleepr.ayvzqyc.mongodb.net/sleepr?retryWrites=true&w=majority"
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb
+                  key: uri
           ports:
             - containerPort: 3001
             - containerPort: 3002
