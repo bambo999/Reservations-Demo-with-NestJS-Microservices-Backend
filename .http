@@ -2,6 +2,22 @@
 @authUrl = http://localhost:3001
 
 ###############################################################################
+# HEALTH CHECKS
+###############################################################################
+
+### 1. Reservations Service Health Check (Port 3000)
+# @name reservationsHealth
+GET {{reservationsUrl}}/
+
+###
+
+### 2. Auth Service Health Check (Port 3001)
+# @name authHealth
+GET {{authUrl}}/
+
+###
+
+###############################################################################
 # AUTH & USERS SERVICE (Port 3001)
 ###############################################################################
 
@@ -54,7 +70,7 @@ Content-Type: application/json
       "exp_year": 2028,
       "number": "4242424242424242"
     },
-    "amount": 20
+    "amount": 50
   }
 }
  
