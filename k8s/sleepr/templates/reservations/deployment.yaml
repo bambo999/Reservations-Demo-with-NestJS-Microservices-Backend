@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: reservations
+  name: reservations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reservations
+  template:
+    metadata:
+      labels:
+        app: reservations
+    spec:
+      containers:
+        - image: 923605793720.dkr.ecr.us-east-1.amazonaws.com/reservations:latest
+          imagePullPolicy: Always
+          name: reservations
+          env:
+            - name: PORT
+              value: '3000'
+            - name: PAYMENTS_HOST
+              value: "payments"
+            - name: PAYMENTS_PORT
+              value: '3003'
+            - name: AUTH_HOST
+              value: "auth-tcp"
+            - name: AUTH_PORT
+              value: '3002'
+            - name: MONGODB_URI
+              value: "mongodb+srv://akandeakinlolu9_db_user:9eaq6NAOEcu4AOB1@sleepr.ayvzqyc.mongodb.net/sleepr?retryWrites=true&w=majority"
+          ports:
+            - containerPort: 3000
