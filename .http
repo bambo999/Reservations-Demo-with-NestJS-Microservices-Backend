@@ -27,8 +27,11 @@ POST {{authUrl}}/users
 Content-Type: application/json
 
 {
-  "email": "akandeakinlolu9@gmail.com",
-  "password": "StrongPassword123!"
+  "email": "akandeadebambo@gmail.com",
+  "password": "StrongPassword123!",
+   "roles": [
+    "Admin"
+  ]
 }
 
 ###
@@ -40,7 +43,8 @@ Content-Type: application/json
 
 {
   "email": "akandeakinlolu9@gmail.com",
-  "password": "StrongPassword123!"
+  "password": "StrongPassword123!",
+ 
 }
 
 ###
