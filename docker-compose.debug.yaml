@@ -1,0 +1,22 @@
+services:
+  reservations:
+    command: pnpm exec nest start reservations --watch --debug 0.0.0.0:9229
+    ports:
+      - '3000:3000'
+      - '9229:9229'
+
+  auth:
+    command: pnpm exec nest start auth --watch --debug 0.0.0.0:9230
+    ports:
+      - '3001:3001'
+      - '9230:9230'
+
+  payments:
+    command: pnpm exec nest start payments --watch --debug 0.0.0.0:9231
+    ports:
+      - '9231:9231'
+
+  notifications:
+    command: pnpm exec nest start notifications --watch --debug 0.0.0.0:9232
+    ports:
+      - '9232:9232'

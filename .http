@@ -42,9 +42,8 @@ POST {{authUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "akandeakinlolu9@gmail.com",
-  "password": "StrongPassword123!",
- 
+  "email": "akandeadebambo@gmail.com",
+  "password": "StrongPassword123!"
 }
 
 ###

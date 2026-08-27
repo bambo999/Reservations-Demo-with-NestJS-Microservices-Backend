@@ -18,6 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:up": "docker compose up",
+    "docker:debug": "docker compose -f docker-compose.yaml -f docker-compose.debug.yaml up",
     "docker:build": "docker compose build",
     "docker:down": "docker compose down",
     "test:e2e": "jest --testMatch=\"<rootDir>/apps/**/test/*.e2e-spec.ts\"",

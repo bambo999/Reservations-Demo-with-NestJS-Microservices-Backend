@@ -1,0 +1,92 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docker: Attach to Reservations (Port 9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "localhost",
+      "restart": true,
+      "autoAttachChildProcesses": true,
+      "sourceMaps": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack://sleepr/./*": "${workspaceFolder}/*",
+        "webpack://sleepr/*": "${workspaceFolder}/*",
+        "/usr/src/app/*": "${workspaceFolder}/*"
+      }
+    },
+    {
+      "name": "Docker: Attach to Auth (Port 9230)",
+      "type": "node",
+      "request": "attach",
+      "port": 9230,
+      "address": "localhost",
+      "restart": true,
+      "autoAttachChildProcesses": true,
+      "sourceMaps": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack://sleepr/./*": "${workspaceFolder}/*",
+        "webpack://sleepr/*": "${workspaceFolder}/*",
+        "/usr/src/app/*": "${workspaceFolder}/*"
+      }
+    },
+    {
+      "name": "Docker: Attach to Payments (Port 9231)",
+      "type": "node",
+      "request": "attach",
+      "port": 9231,
+      "address": "localhost",
+      "restart": true,
+      "autoAttachChildProcesses": true,
+      "sourceMaps": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack://sleepr/./*": "${workspaceFolder}/*",
+        "webpack://sleepr/*": "${workspaceFolder}/*",
+        "/usr/src/app/*": "${workspaceFolder}/*"
+      }
+    },
+    {
+      "name": "Docker: Attach to Notifications (Port 9232)",
+      "type": "node",
+      "request": "attach",
+      "port": 9232,
+      "address": "localhost",
+      "restart": true,
+      "autoAttachChildProcesses": true,
+      "sourceMaps": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack:///*": "${workspaceFolder}/*",
+        "webpack://sleepr/./*": "${workspaceFolder}/*",
+        "webpack://sleepr/*": "${workspaceFolder}/*",
+        "/usr/src/app/*": "${workspaceFolder}/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Docker: Attach All Microservices",
+      "configurations": [
+        "Docker: Attach to Reservations (Port 9229)",
+        "Docker: Attach to Auth (Port 9230)",
+        "Docker: Attach to Payments (Port 9231)",
+        "Docker: Attach to Notifications (Port 9232)"
+      ]
+    }
+  ]
+}
