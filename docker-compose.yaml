@@ -17,6 +17,7 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
       - mongo
+      - rabbitmq
 
   auth:
     build:
@@ -36,6 +37,7 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
       - mongo
+      - rabbitmq
 
   payments:
     build:
@@ -53,6 +55,7 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
       - mongo   
+      - rabbitmq
 
   notifications:
     build:
@@ -70,6 +73,7 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
       - mongo     
+      - rabbitmq
 
   mongo:
     image: mongo:latest
@@ -77,6 +81,11 @@ services:
       - '27017:27017'
     volumes: 
       - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - '5672:5672' 
 
 volumes:
   mongo-data:
