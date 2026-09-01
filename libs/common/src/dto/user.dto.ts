@@ -1,6 +1,10 @@
+import { RoleDto } from './role.dto';
+
 export interface UserDto {
-    _id: string;
-    email: string;
-    password?: string;
-    roles?: string[];
+  id?: number;
+  _id?: string;
+  email: string;
+  password?: string;
+  roles?: RoleDto[];
 }
+

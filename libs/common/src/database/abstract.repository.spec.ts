@@ -1,43 +1,49 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { AbstractRepository } from './abstract.repository';
-import { AbstractDocument } from './abstract.schema';
-import { Model, Types } from 'mongoose';
+import { AbstractEntity } from './abstract.entity';
+import { EntityManager, Repository } from 'typeorm';
 
-class TestDocument extends AbstractDocument {
+class TestEntity extends AbstractEntity<TestEntity> {
   name: string;
 }
 
-class TestRepository extends AbstractRepository<TestDocument> {
+class TestRepository extends AbstractRepository<TestEntity> {
   protected readonly logger = new Logger(TestRepository.name);
 
-  constructor(model: Model<TestDocument>) {
-    super(model);
+  constructor(
+    entityRepository: Repository<TestEntity>,
+    entityManager: EntityManager,
+  ) {
+    super(entityRepository, entityManager);
   }
 }
 
 describe('AbstractRepository', () => {
   let repository: TestRepository;
-  let mockModel: any;
+  let mockEntityRepository: Partial<Repository<TestEntity>>;
+  let mockEntityManager: Partial<EntityManager>;
 
-  const mockDoc = {
-    _id: new Types.ObjectId(),
+  const mockEntity: TestEntity = new TestEntity({
+    id: 1,
     name: 'test_item',
-  };
+  });
 
   beforeEach(() => {
-    mockModel = jest.fn().mockImplementation((dto) => ({
-      ...dto,
-      save: jest.fn().mockResolvedValue({
-        toJSON: () => ({ ...dto, _id: dto._id }),
-      }),
-    }));
+    mockEntityRepository = {
+      findOne: jest.fn(),
+      update: jest.fn(),
+      find: jest.fn(),
+      delete: jest.fn(),
+    };
 
-    mockModel.findOne = jest.fn();
-    mockModel.findOneAndUpdate = jest.fn();
-    mockModel.find = jest.fn();
-    mockModel.findOneAndDelete = jest.fn();
+    mockEntityManager = {
+      save: jest.fn().mockResolvedValue(mockEntity),
+    };
 
-    repository = new TestRepository(mockModel as unknown as Model<TestDocument>);
+    repository = new TestRepository(
+      mockEntityRepository as Repository<TestEntity>,
+      mockEntityManager as EntityManager,
+    );
   });
 
   it('should be defined', () => {
@@ -45,91 +51,79 @@ describe('AbstractRepository', () => {
   });
 
   describe('create', () => {
-    it('should create and save a new document', async () => {
-      const result = await repository.create({ name: 'test_item' } as any);
-      expect(result.name).toBe('test_item');
-      expect(result._id).toBeDefined();
+    it('should create and save a new entity', async () => {
+      const result = await repository.create(mockEntity);
+      expect(mockEntityManager.save).toHaveBeenCalledWith(mockEntity);
+      expect(result).toEqual(mockEntity);
     });
   });
 
   describe('findOne', () => {
-    it('should return document if found', async () => {
-      mockModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(mockDoc),
-      });
+    it('should return entity if found', async () => {
+      (mockEntityRepository.findOne as jest.Mock).mockResolvedValue(mockEntity);
 
-      const result = await repository.findOne({ name: 'test_item' });
-      expect(result).toEqual(mockDoc);
+      const result = await repository.findOne({ id: 1 });
+      expect(mockEntityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: undefined,
+      });
+      expect(result).toEqual(mockEntity);
     });
 
-    it('should throw NotFoundException if document not found', async () => {
-      mockModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
+    it('should throw NotFoundException if entity not found', async () => {
+      (mockEntityRepository.findOne as jest.Mock).mockResolvedValue(null);
 
-      await expect(repository.findOne({ name: 'missing' })).rejects.toThrow(
+      await expect(repository.findOne({ id: 999 })).rejects.toThrow(
         NotFoundException,
       );
     });
   });
 
   describe('findOneAndUpdate', () => {
-    it('should update and return document', async () => {
-      const updatedDoc = { ...mockDoc, name: 'updated_name' };
-      mockModel.findOneAndUpdate.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(updatedDoc),
-      });
+    it('should update and return entity', async () => {
+      (mockEntityRepository.update as jest.Mock).mockResolvedValue({ affected: 1 });
+      (mockEntityRepository.findOne as jest.Mock).mockResolvedValue(mockEntity);
 
       const result = await repository.findOneAndUpdate(
-        { _id: mockDoc._id },
-        { $set: { name: 'updated_name' } },
+        { id: 1 },
+        { name: 'updated_name' },
       );
-      expect(result).toEqual(updatedDoc);
+      expect(mockEntityRepository.update).toHaveBeenCalledWith(
+        { id: 1 },
+        { name: 'updated_name' },
+      );
+      expect(result).toEqual(mockEntity);
     });
 
-    it('should throw NotFoundException if document to update is not found', async () => {
-      mockModel.findOneAndUpdate.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
+    it('should throw NotFoundException if entity to update is not found', async () => {
+      (mockEntityRepository.update as jest.Mock).mockResolvedValue({ affected: 0 });
 
       await expect(
-        repository.findOneAndUpdate(
-          { _id: mockDoc._id },
-          { $set: { name: 'updated' } },
-        ),
+        repository.findOneAndUpdate({ id: 999 }, { name: 'updated' }),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('find', () => {
-    it('should return an array of documents', async () => {
-      mockModel.find.mockReturnValue({
-        lean: jest.fn().mockResolvedValue([mockDoc]),
-      });
+    it('should return an array of entities', async () => {
+      (mockEntityRepository.find as jest.Mock).mockResolvedValue([mockEntity]);
 
       const result = await repository.find({});
-      expect(result).toEqual([mockDoc]);
+      expect(mockEntityRepository.find).toHaveBeenCalledWith({
+        where: {},
+        relations: undefined,
+      });
+      expect(result).toEqual([mockEntity]);
     });
   });
 
   describe('findOneAndDelete', () => {
-    it('should delete and return document', async () => {
-      mockModel.findOneAndDelete.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(mockDoc),
-      });
+    it('should delete entity', async () => {
+      (mockEntityRepository.delete as jest.Mock).mockResolvedValue({ affected: 1 });
 
-      const result = await repository.findOneAndDelete({ _id: mockDoc._id });
-      expect(result).toEqual(mockDoc);
-    });
-
-    it('should throw NotFoundException if document to delete is not found', async () => {
-      mockModel.findOneAndDelete.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
-
-      await expect(
-        repository.findOneAndDelete({ _id: mockDoc._id }),
-      ).rejects.toThrow(NotFoundException);
+      await repository.findOneAndDelete({ id: 1 });
+      expect(mockEntityRepository.delete).toHaveBeenCalledWith({ id: 1 });
     });
   });
 });
+

@@ -14,9 +14,8 @@ services:
       - ./apps/reservations/.env
     environment:
       - CI=true
-      - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
-      - mongo
+      - mysql
 
   auth:
     build:
@@ -33,9 +32,8 @@ services:
       - ./apps/auth/.env
     environment:
       - CI=true
-      - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
-      - mongo
+      - mysql
 
   payments:
     build:
@@ -50,9 +48,8 @@ services:
       - ./apps/payments/.env  
     environment:
       - CI=true
-      - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
-      - mongo   
+      - mysql   
 
   notifications:
     build:
@@ -67,16 +64,17 @@ services:
       - ./apps/notifications/.env  
     environment:
       - CI=true
-      - MONGODB_URI=mongodb://mongo:27017/sleepr
     depends_on:
-      - mongo     
+      - mysql     
 
-  mongo:
-    image: mongo:latest
+  mysql:
+    image: mysql:latest
     ports:
-      - '27017:27017'
+      - '3306:3306'
+    env_file:
+      - .env
     volumes: 
-      - mongo-data:/data/db
+      - mysql-data:/var/lib/mysql
 
 volumes:
-  mongo-data:
+  mysql-data:

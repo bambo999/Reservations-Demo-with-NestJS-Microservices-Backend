@@ -13,17 +13,17 @@ describe('ReservationsService', () => {
   let paymentsService: ClientProxy;
 
   const mockUser: UserDto = {
-    _id: 'user_123',
+    id: 1,
     email: 'test@example.com',
     password: 'password',
   };
 
   const mockReservation = {
-    _id: 'res_123',
+    id: 1,
     startDate: new Date('2026-09-01'),
     endDate: new Date('2026-09-05'),
     invoiceId: 'inv_123',
-    userId: 'user_123',
+    userId: 1,
     timestamp: new Date(),
   };
 
@@ -90,7 +90,7 @@ describe('ReservationsService', () => {
           startDate: createDto.startDate,
           endDate: createDto.endDate,
           invoiceId: 'inv_123',
-          userId: mockUser._id,
+          userId: mockUser.id,
         }),
       );
 
@@ -108,8 +108,8 @@ describe('ReservationsService', () => {
 
   describe('findOne', () => {
     it('should find one reservation by id', async () => {
-      const result = await service.findOne('res_123');
-      expect(repository.findOne).toHaveBeenCalledWith({ _id: 'res_123' });
+      const result = await service.findOne(1);
+      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
       expect(result).toEqual(mockReservation);
     });
   });
@@ -117,10 +117,10 @@ describe('ReservationsService', () => {
   describe('update', () => {
     it('should update reservation by id', async () => {
       const updateDto: UpdateReservationDto = { endDate: new Date('2026-09-10') };
-      const result = await service.update('res_123', updateDto);
+      const result = await service.update(1, updateDto);
       expect(repository.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: 'res_123' },
-        { $set: updateDto },
+        { id: 1 },
+        updateDto,
       );
       expect(result).toEqual(mockReservation);
     });
@@ -128,8 +128,8 @@ describe('ReservationsService', () => {
 
   describe('remove', () => {
     it('should delete reservation by id', async () => {
-      const result = await service.remove('res_123');
-      expect(repository.findOneAndDelete).toHaveBeenCalledWith({ _id: 'res_123' });
+      const result = await service.remove(1);
+      expect(repository.findOneAndDelete).toHaveBeenCalledWith({ id: 1 });
       expect(result).toEqual(mockReservation);
     });
   });

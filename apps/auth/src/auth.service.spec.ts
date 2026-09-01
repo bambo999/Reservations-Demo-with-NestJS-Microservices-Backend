@@ -3,18 +3,16 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { Types } from 'mongoose';
-import { UserDocument } from './users/model/user.schema';
+import { User } from './users/model/user.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
 
-  const mockObjectId = new Types.ObjectId();
   const mockUser = {
-    _id: mockObjectId,
+    id: 1,
     email: 'test@example.com',
-  } as UserDocument;
+  } as User;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -55,7 +53,7 @@ describe('AuthService', () => {
       await service.login(mockUser, mockResponse);
 
       expect(jwtService.sign).toHaveBeenCalledWith({
-        userId: mockObjectId.toHexString(),
+        userId: 1,
       });
 
       expect(mockResponse.cookie).toHaveBeenCalledWith(

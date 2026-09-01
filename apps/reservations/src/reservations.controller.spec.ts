@@ -10,17 +10,17 @@ describe('ReservationsController', () => {
   let service: ReservationsService;
 
   const mockUser: UserDto = {
-    _id: 'user123',
+    id: 1,
     email: 'test@example.com',
     password: 'hashedpassword',
   };
 
   const mockReservation = {
-    _id: 'res123',
+    id: 1,
     startDate: new Date('2026-09-01'),
     endDate: new Date('2026-09-05'),
     invoiceId: 'inv123',
-    userId: 'user123',
+    userId: 1,
     timestamp: new Date(),
   };
 
@@ -88,8 +88,8 @@ describe('ReservationsController', () => {
 
   describe('findOne', () => {
     it('should return a single reservation by id', async () => {
-      const result = await controller.findOne('res123');
-      expect(service.findOne).toHaveBeenCalledWith('res123');
+      const result = await controller.findOne('1');
+      expect(service.findOne).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockReservation);
     });
   });
@@ -97,16 +97,16 @@ describe('ReservationsController', () => {
   describe('update', () => {
     it('should update and return the reservation', async () => {
       const updateDto: UpdateReservationDto = { endDate: new Date('2026-09-10') };
-      const result = await controller.update('res123', updateDto);
-      expect(service.update).toHaveBeenCalledWith('res123', updateDto);
+      const result = await controller.update('1', updateDto);
+      expect(service.update).toHaveBeenCalledWith(1, updateDto);
       expect(result).toEqual({ ...mockReservation, endDate: new Date('2026-09-10') });
     });
   });
 
   describe('remove', () => {
     it('should delete and return the reservation', async () => {
-      const result = await controller.remove('res123');
-      expect(service.remove).toHaveBeenCalledWith('res123');
+      const result = await controller.remove('1');
+      expect(service.remove).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockReservation);
     });
   });

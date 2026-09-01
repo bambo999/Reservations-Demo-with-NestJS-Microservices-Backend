@@ -10,7 +10,8 @@ export class PaymentsController {
 
   @MessagePattern('create_charge')
   @UsePipes(new ValidationPipe())
-  async createCharge(@Payload() data: PaymentsCreateChargeDto) {
+  async createCharge(@Payload() data: PaymentsCreateChargeDto) { 
     return this.paymentsService.createCharge(data);
   }
 }
+ 

@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Role } from './model/role.entity';
 
 jest.mock('bcryptjs', () => ({
   hash: jest.fn(),
@@ -15,7 +17,7 @@ describe('UsersService', () => {
   let repository: UsersRepository;
 
   const mockUser = {
-    _id: 'user_123',
+    id: 1,
     email: 'test@example.com',
     password: 'hashedPassword',
   };
@@ -31,6 +33,14 @@ describe('UsersService', () => {
           useValue: {
             create: jest.fn().mockResolvedValue(mockUser),
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useValue: {
+            findOne: jest.fn(),
+            create: jest.fn().mockImplementation((role) => role),
+            save: jest.fn().mockImplementation((role) => Promise.resolve({ id: 1, ...role })),
           },
         },
       ],
@@ -56,10 +66,12 @@ describe('UsersService', () => {
       });
 
       expect(repository.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
-      expect(repository.create).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'hashedPassword',
-      });
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'test@example.com',
+          password: 'hashedPassword',
+        }),
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -83,7 +95,10 @@ describe('UsersService', () => {
 
       const result = await service.verifyUser('test@example.com', 'password123');
 
-      expect(repository.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(repository.findOne).toHaveBeenCalledWith(
+        { email: 'test@example.com' },
+        { roles: true },
+      );
       expect(bcrypt.compare).toHaveBeenCalledWith('password123', mockUser.password);
       expect(result).toEqual(mockUser);
     });
@@ -102,10 +117,11 @@ describe('UsersService', () => {
     it('should find and return user by filter', async () => {
       (repository.findOne as jest.Mock).mockResolvedValue(mockUser);
 
-      const result = await service.getUser({ _id: 'user_123' });
+      const result = await service.getUser({ id: 1 });
 
-      expect(repository.findOne).toHaveBeenCalledWith({ _id: 'user_123' });
+      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 }, { roles: true });
       expect(result).toEqual(mockUser);
     });
   });
 });
+

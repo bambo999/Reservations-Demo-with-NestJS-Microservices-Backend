@@ -2,17 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { UserDocument } from './users/model/user.schema';
+import { User } from './users/model/user.entity';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
 
   const mockUser = {
-    _id: 'user_123',
+    id: 1,
     email: 'test@example.com',
     password: 'hashedPassword',
-  } as unknown as UserDocument;
+  } as unknown as User;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({

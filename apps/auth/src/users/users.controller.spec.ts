@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserDocument } from './model/user.schema';
+import { User } from './model/user.entity';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 describe('UsersController', () => {
@@ -10,10 +10,10 @@ describe('UsersController', () => {
   let service: UsersService;
 
   const mockUser = {
-    _id: 'user_123',
+    id: 1,
     email: 'test@example.com',
     password: 'hashedPassword',
-  } as unknown as UserDocument;
+  } as unknown as User;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

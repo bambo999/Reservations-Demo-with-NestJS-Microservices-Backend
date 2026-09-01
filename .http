@@ -27,10 +27,10 @@ POST {{authUrl}}/users
 Content-Type: application/json
 
 {
-  "email": "akandeadebambo@gmail.com",
+  "email": "akandeakinlolu999@gmail.com",
   "password": "StrongPassword123!",
-   "roles": [
-    "Admin"
+  "roles": [
+    { "name": "Admin" }
   ]
 }
 
@@ -42,7 +42,7 @@ POST {{authUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "akandeadebambo@gmail.com",
+  "email": "akandeakinlolu99@gmail.com",
   "password": "StrongPassword123!"
 }
 
@@ -85,7 +85,7 @@ GET {{reservationsUrl}}/reservations
 ###
 
 ### 3. Get a Single Reservation by ID
-@reservationId = {{createReservation.response.body._id}}
+@reservationId = {{createReservation.response.body.id}}
 GET {{reservationsUrl}}/reservations/{{reservationId}}
 
 ###
@@ -95,7 +95,7 @@ PATCH {{reservationsUrl}}/reservations/{{reservationId}}
 Content-Type: application/json
 
 {
-  "placeId": "place_updated_999"
+  "endDate": "2026-08-30T10:00:00.000Z"
 }
 
 ###

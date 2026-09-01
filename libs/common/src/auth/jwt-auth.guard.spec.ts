@@ -3,10 +3,12 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { ClientProxy } from '@nestjs/microservices';
 import { of, throwError, firstValueFrom } from 'rxjs';
 import { UserDto } from '../dto';
+import { Reflector } from '@nestjs/core';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
   let authClient: ClientProxy;
+  let reflector: Reflector;
 
   const mockUser: UserDto = {
     _id: 'user_123',
@@ -18,7 +20,10 @@ describe('JwtAuthGuard', () => {
     authClient = {
       send: jest.fn(),
     } as unknown as ClientProxy;
-    guard = new JwtAuthGuard(authClient);
+    reflector = {
+      get: jest.fn().mockReturnValue(undefined),
+    } as unknown as Reflector;
+    guard = new JwtAuthGuard(authClient, reflector);
   });
 
   it('should be defined', () => {
@@ -32,6 +37,7 @@ describe('JwtAuthGuard', () => {
           cookies: {},
         }),
       }),
+      getHandler: jest.fn(),
     } as unknown as ExecutionContext;
 
     const result = guard.canActivate(mockContext);
@@ -47,6 +53,7 @@ describe('JwtAuthGuard', () => {
       switchToHttp: () => ({
         getRequest: () => mockRequest,
       }),
+      getHandler: jest.fn(),
     } as unknown as ExecutionContext;
 
     (authClient.send as jest.Mock).mockReturnValue(of(mockUser));
@@ -69,6 +76,7 @@ describe('JwtAuthGuard', () => {
       switchToHttp: () => ({
         getRequest: () => mockRequest,
       }),
+      getHandler: jest.fn(),
     } as unknown as ExecutionContext;
 
     (authClient.send as jest.Mock).mockReturnValue(
@@ -81,3 +89,4 @@ describe('JwtAuthGuard', () => {
     expect(result).toBe(false);
   });
 });
+
