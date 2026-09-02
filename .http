@@ -69,11 +69,11 @@ Content-Type: application/json
   "charge": {
     "card": {
       "cvc": "123",
-      "exp_month": 12,
-      "exp_year": 2028,
+      "expMonth": 12,
+      "expYear": 2028,
       "number": "4242424242424242"
     },
-    "amount": 50
+    "amount": 60
   }
 }
  

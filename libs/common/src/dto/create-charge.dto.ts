@@ -1,8 +1,9 @@
 import { CardDto } from './card.dto';
 import { IsDefined, IsNotEmptyObject, IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CreateChargeMessage } from '../types';
 
-export class CreateChargeDto {
+export class CreateChargeDto implements Omit<CreateChargeMessage,'email'> {
   @IsDefined()
   @IsNotEmptyObject()
   @ValidateNested()

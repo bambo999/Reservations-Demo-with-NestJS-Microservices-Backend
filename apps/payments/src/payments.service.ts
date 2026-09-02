@@ -1,12 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { CreateChargeDto, NOTIFICATIONS_SERVICE } from '@app/common';
-import { ClientProxy } from '@nestjs/microservices';
+import {
+  NOTIFICATIONS_SERVICE_NAME,
+  NotificationsServiceClient,
+} from '@app/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from '../dto/payments-create-charge.dto';
 
 @Injectable()
-export class PaymentsService {
+export class PaymentsService implements OnModuleInit {
+  private notificationsService: NotificationsServiceClient;
+
   private readonly stripe = new Stripe(
     this.configService.get('STRIPE_SECRET_KEY'),
     {
@@ -14,24 +19,18 @@ export class PaymentsService {
     },
   );
 
-  constructor(private readonly configService: ConfigService, @Inject(NOTIFICATIONS_SERVICE) private readonly notificationsService: ClientProxy ) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(NOTIFICATIONS_SERVICE_NAME)
+    private readonly client: ClientGrpc,
+  ) {}
 
-  // async createCharge({ card, amount }: CreateChargeDto) {
-  //   const paymentMethod = await this.stripe.paymentMethods.create({
-  //     type: 'card',
-  //     card,
-  //   });
-
-  //   const paymentIntent = await this.stripe.paymentIntents.create({
-  //     payment_method: paymentMethod.id,
-  //     amount: amount * 100,
-  //     confirm: true,
-  //     payment_method_types: ['card'],
-  //     currency: 'usd',
-  //   });
-
-  //   return paymentIntent;
-  // }
+  onModuleInit() {
+    this.notificationsService =
+      this.client.getService<NotificationsServiceClient>(
+        NOTIFICATIONS_SERVICE_NAME,
+      );
+  }
 
   //For stripe test card (check stripe docs for more info)
   async createCharge({ amount, email }: PaymentsCreateChargeDto) {
@@ -39,15 +38,26 @@ export class PaymentsService {
       amount: amount * 100,
       confirm: true,
       currency: 'usd',
-      payment_method: 'pm_card_visa', //For stripe test card 
+      payment_method: 'pm_card_visa', //For stripe test card
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: 'never',
       },
     });
 
-    this.notificationsService.emit('notify_email', { email,
-       text: `You payment of $${amount}  was successful` })
+    if (!this.notificationsService) {
+      this.notificationsService =
+        this.client.getService<NotificationsServiceClient>(
+          NOTIFICATIONS_SERVICE_NAME,
+        );
+    }
+
+    this.notificationsService
+      .notifyEmail({
+        email,
+        text: `Your payment of $${amount} was successful`,
+      })
+      .subscribe();
 
     return paymentIntent;
   }

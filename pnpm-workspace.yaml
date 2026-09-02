@@ -1,3 +1,5 @@
 allowBuilds:
-  bcrypt: set this to true or false
-  unrs-resolver: false
+  bcrypt: true
+  grpc-tools: true
+  protobufjs: true
+  unrs-resolver: true
